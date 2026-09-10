@@ -1,4 +1,5 @@
 import { useProducts } from '../../contexts/products/useProducts'
+import ProductCard from './ProductCard'
 
 const ProductList = () => {
   const { products, loading, error } = useProducts()
@@ -18,12 +19,8 @@ const ProductList = () => {
   return (
     <div>
       {products.map((product) => (
-        <div key={product.id}>
-          <h2>{product.name}</h2>
-          <p>{product.description}</p>
-          <p>${product.price}</p>
-        </div>
-      ))}
+        <ProductCard key={product.id} product={product} />
+      ))} 
     </div>
   )
 }

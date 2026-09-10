@@ -1,0 +1,38 @@
+:root {
+  /* Background */
+  --background: #f0ead2;
+  --surface: #dde5b6;
+  --card: #fffdf7;
+
+  /* Text */
+  --foreground: #6c584c;
+  --muted: #8c8175;
+
+  /* Brand */
+  --primary: #adc178;
+  --primary-hover: #94a861;
+  --primary-foreground: #ffffff;
+
+  /* Feedback */
+  --info: #5b8fa8;
+  --success: #718f4f;
+  --warning: #c49a5a;
+  --danger: #b85c5c;
+
+  /* Border */
+  --border: #d6ceb5;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Spacing */
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.1);
+}
