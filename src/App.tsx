@@ -1,9 +1,10 @@
-import ProductList from './components/products/ProductList'
+import Header from './components/ui/Header'
+import ProductList from './components/common/ProductList'
 
 function App() {
   return (
     <div>
-      <h1>SAVIA</h1>
+      <Header />
       <ProductList />
     </div>
   )

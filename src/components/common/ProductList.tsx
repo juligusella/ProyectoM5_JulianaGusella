@@ -1,4 +1,7 @@
 import { useProducts } from '../../contexts/products/useProducts'
+import EmptyState from '../states/EmptyState'
+import ErrorState from '../states/ErrorState'
+import LoadingState from '../states/LoadingState'
 import ProductCard from './ProductCard'
 
 const categories = [
@@ -12,16 +15,16 @@ const ProductList = () => {
   const { products, loading, error } = useProducts()
 
   if (loading) {
-    return <p>Cargando productos...</p>
-  }
+  return <LoadingState />
+}
 
-  if (error) {
-    return <p>{error}</p>
-  }
+if (error) {
+  return <ErrorState message={error} />
+}
 
-  if (products.length === 0) {
-    return <p>No hay productos disponibles.</p>
-  }
+if (products.length === 0) {
+  return <EmptyState message="No hay productos disponibles." />
+}
 
 return (
   <main className="mx-auto max-w-7xl px-4 py-8">
