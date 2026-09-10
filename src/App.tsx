@@ -1,7 +1,10 @@
+import ProductList from './components/products/ProductList'
+
 function App() {
   return (
     <div>
-      <h1>E-Commerce FT76</h1>
+      <h1>SAVIA</h1>
+      <ProductList />
     </div>
   )
 }

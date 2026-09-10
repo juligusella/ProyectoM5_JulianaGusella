@@ -8,21 +8,27 @@ interface ProductsProviderProps {
 }
 
 const ProductsProvider = ({ children }: ProductsProviderProps) => {
-    const [products, setProducts] = useState<Product[]>([])
-    const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        const loadProducts = async () => {
-            const data = await getProducts()
-            setProducts(data)
-            setLoading(false)
-        }
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await getProducts()
+        setProducts(data)
+      } catch {
+        setError('No se pudieron cargar los productos.')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-        loadProducts()
-    }, [])
+    loadProducts()
+  }, [])
 
-    return (
-    <ProductsContext.Provider value={{ products, loading }}>
+  return (
+    <ProductsContext.Provider value={{ products, loading, error }}>
       {children}
     </ProductsContext.Provider>
   )
