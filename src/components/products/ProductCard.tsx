@@ -6,30 +6,32 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <article className="product-card">
+    <article>
       <img
-        className="product-card__image"
+        className="h-56 w-full object-cover"
         src={product.imageUrl}
         alt={product.name}
       />
 
-      <div className="product-card__content">
-        <p className="product-card__category">
-          {product.category}
-        </p>
-
-        <h2 className="product-card__name">
+      <div className="flex flex-col p-4">
+        <h2 className="text-lg font-semibold uppercase text-[var(--foreground)]">
           {product.name}
         </h2>
 
-        <p className="product-card__price">
+        <p className="text-base font-bold text-[var(--foreground)]">
           {new Intl.NumberFormat('es-AR', {
             style: 'currency',
             currency: 'ARS',
           }).format(product.price)}
         </p>
 
-        <p className="product-card__stock">
+        <p
+          className={
+            product.stock > 0
+              ? 'mt-2 text-sm font-medium text-[var(--success)]'
+              : 'mt-2 text-sm font-medium text-[var(--danger)]'
+          }
+        >
           {product.stock > 0 ? 'En stock' : 'Sin stock'}
         </p>
       </div>
