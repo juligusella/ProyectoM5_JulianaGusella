@@ -1,24 +1,26 @@
+import Button from './Button'
+
 const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--card)]">
       <div className="mx-auto grid h-20 max-w-7xl grid-cols-3 items-center px-4">
         {/* Left actions */}
         <div className="flex items-center gap-4">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Abrir menú"
-            className="text-[var(--foreground)]"
           >
             ☰
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Buscar productos"
-            className="text-[var(--foreground)]"
           >
             ⌕
-          </button>
+          </Button>
         </div>
 
         {/* Logo */}
@@ -30,21 +32,21 @@ const Header = () => {
 
         {/* Right actions */}
         <div className="flex items-center justify-end gap-4">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Mi cuenta"
-            className="text-[var(--foreground)]"
           >
             ♙
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Carrito"
-            className="text-[var(--foreground)]"
           >
             ♡
-          </button>
+          </Button>
         </div>
       </div>
     </header>
