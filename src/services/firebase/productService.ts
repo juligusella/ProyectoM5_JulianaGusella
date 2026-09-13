@@ -3,25 +3,106 @@ import {
   collection,
   deleteDoc,
   doc,
+  endAt,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
+  startAfter,
+  startAt,
   updateDoc,
   where,
+  type DocumentSnapshot,
+  type QueryConstraint,
 } from 'firebase/firestore'
-
 import { db } from './config'
-import type { Product } from '../../types/product'
+import type { CategoryId, Product } from '../../types/product'
+
+const mapProduct = (
+  document: DocumentSnapshot,
+): Product => {
+  const data = document.data()
+
+  if (!data) {
+    throw new Error('Documento de producto inválido.')
+  }
+
+  return {
+    id: document.id,
+    name: data.name,
+    nameLower: data.nameLower,
+    description: data.description,
+    price: data.price,
+    category: data.category,
+    imageUrl: data.imageUrl,
+    stock: data.stock,
+  }
+}
 
 const productsCollection = collection(db, 'products')
+
+export type ListProductsParams = {
+  category?: CategoryId
+  searchPrefix?: string
+  pageSize?: number
+  cursor?: DocumentSnapshot | null
+}
+
+export type ListProductsResult = {
+  items: Product[]
+  lastDoc: DocumentSnapshot | null
+}
+
+export const listProducts = async (
+  params: ListProductsParams = {},
+): Promise<ListProductsResult> => {
+  const { category, searchPrefix, pageSize = 8, cursor } = params
+  
+  const constraints: QueryConstraint[] = []
+
+  if (category) {
+    constraints.push(where('category', '==', category))
+  }
+
+  if (searchPrefix && searchPrefix.length >= 2) {
+    constraints.push(
+      orderBy('nameLower'),
+      startAt(searchPrefix),
+      endAt(searchPrefix + '\uffff'),
+    )
+  }
+
+  if (cursor) {
+  constraints.push(startAfter(cursor))
+  }
+
+  constraints.push(limit(pageSize))
+
+  const productsQuery = query(
+    productsCollection,
+    ...constraints,
+  )
+
+  const snapshot = await getDocs(productsQuery)
+
+  const items = snapshot.docs.map(mapProduct)
+
+  const lastDoc =
+    snapshot.docs.length > 0
+      ? snapshot.docs[snapshot.docs.length - 1]
+      : null
+
+  return {
+    items,
+    lastDoc,
+  }
+}
 
 export const getProducts = async (): Promise<Product[]> => {
   const snapshot = await getDocs(productsCollection)
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Product[]
+  return snapshot.docs.map(mapProduct)
 }
 
 export const getProductById = async (
@@ -34,14 +115,11 @@ export const getProductById = async (
     return null
   }
 
-  return {
-    id: snapshot.id,
-    ...snapshot.data(),
-  } as Product
+  return mapProduct(snapshot)
 }
 
 export const getProductsByCategory = async (
-  category: string,
+  category: CategoryId,
 ): Promise<Product[]> => {
   const categoryQuery = query(
     productsCollection,
@@ -50,10 +128,7 @@ export const getProductsByCategory = async (
 
   const snapshot = await getDocs(categoryQuery)
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Product[]
+  return snapshot.docs.map(mapProduct)
 }
 
 export const createProduct = async (
@@ -80,3 +155,4 @@ export const deleteProduct = async (
 
   await deleteDoc(productDoc)
 }
+
