@@ -1,11 +1,11 @@
 import Header from './components/ui/Header'
-import ProductList from './components/common/ProductList'
+import Catalog from './pages/Catalog'
 
 function App() {
   return (
     <div>
       <Header />
-      <ProductList />
+      <Catalog />
     </div>
   )
 }

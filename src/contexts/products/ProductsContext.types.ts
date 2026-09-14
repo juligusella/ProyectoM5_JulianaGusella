@@ -1,17 +1,21 @@
 import type { DocumentSnapshot } from 'firebase/firestore'
 import type { CategoryId, Product } from '../../types/product'
 
-export type ProductsState = {
+export interface CategoryProductsState {
   products: Product[]
+  cursor: DocumentSnapshot | null
+  hasNextPage: boolean
+}
+
+export type ProductsState = {
+  productsByCategory: Record<CategoryId, CategoryProductsState>
 
   // Estados de la consulta
   isLoading: boolean
   error: string | null
 
   // Paginación
-  cursor: DocumentSnapshot | null
-  hasNextPage: boolean
-  isLoadingMore: boolean
+  loadingMoreCategory: CategoryId | null
 
   // Filtros
   searchText: string
@@ -21,6 +25,11 @@ export type ProductsState = {
 export type ProductsContextType = ProductsState & {
   setSearchText: (value: string) => void
   setCategoryId: (value: CategoryId | null) => void
-  loadProducts: (options?: { reset?: boolean }) => Promise<void>
+  loadProducts: (
+    options?: {
+      reset?: boolean
+      categoryId?: CategoryId
+    },
+  ) => Promise<void>
   resetFilters: () => void
 }

@@ -8,20 +8,44 @@ import {
 import { listProducts } from '../../services/firebase/productService'
 import { ProductsContext } from './ProductsContext'
 import type {
+  CategoryProductsState,
   ProductsContextType,
   ProductsState,
 } from './ProductsContext.types'
 import { useDebounce } from '../../hooks/useDebounce'
+import type { CategoryId } from '../../types/product'
 
-const PAGE_SIZE = 8
+const INITIAL_PAGE_SIZE = 4
+const LOAD_MORE_PAGE_SIZE = 2
 
-const initialState: ProductsState = {
+const categoryIds: CategoryId[] = [
+  'plantas',
+  'macetas',
+  'cultivo',
+  'terrarios',
+]
+
+const createInitialCategoryState = (): CategoryProductsState => ({
   products: [],
-  isLoading: false,
-  error: null,
   cursor: null,
   hasNextPage: false,
-  isLoadingMore: false,
+})
+
+const initialProductsByCategory = (): ProductsState['productsByCategory'] => {
+  return Object.fromEntries(
+    categoryIds.map((categoryId) => [
+      categoryId,
+      createInitialCategoryState(),
+    ]),
+  ) as ProductsState['productsByCategory']
+}
+
+const initialState: ProductsState = {
+  productsByCategory: initialProductsByCategory(),
+
+  isLoading: false,
+  error: null,
+  loadingMoreCategory: null,
   searchText: '',
   categoryId: null,
 }
@@ -36,64 +60,113 @@ const ProductsProvider = ({ children }: ProductsProviderProps) => {
   const debouncedSearch = useDebounce(state.searchText, 400)
 
   const loadProducts = useCallback(
-    async ({ reset = false }: { reset?: boolean } = {}) => {
-      if (state.isLoading || state.isLoadingMore) {
-        return
-      }
+  async ({
+    reset = false,
+    categoryId: requestedCategoryId,
+  }: {
+    reset?: boolean
+    categoryId?: CategoryId
+  } = {}) => {
+    const targetCategory = requestedCategoryId ?? state.categoryId
+    const isAllCategories = targetCategory === null
 
-      const isFirstPage = reset || state.cursor === null
+    if (state.isLoading || state.loadingMoreCategory !== null) {
+      return
+    }
 
-      setState((currentState) => ({
-        ...currentState,
-        ...(isFirstPage
-          ? {
-              products: [],
-              isLoading: true,
-            }
-          : {
-              isLoadingMore: true,
-            }),
-        error: null,
-      }))
+    const isFirstPage = reset
 
-      try {
-        const { items, lastDoc } = await listProducts({
-          category: state.categoryId ?? undefined,
-          searchPrefix:
-            debouncedSearch.trim().length >= 2
-            ? debouncedSearch.trim().toLowerCase()
-            : undefined,
-          pageSize: PAGE_SIZE,
-          cursor: isFirstPage ? null : state.cursor,
+    setState((currentState) => ({
+      ...currentState,
+      ...(isFirstPage
+        ? {
+            productsByCategory: initialProductsByCategory(),
+            isLoading: true,
+          }
+        : {
+            loadingMoreCategory: targetCategory,
+          }),
+      error: null,
+    }))
+
+    try {
+      const categoriesToLoad = isAllCategories
+        ? categoryIds
+        : [targetCategory]
+
+      const results = await Promise.all(
+        categoriesToLoad.map(async (category) => {
+          const currentCategoryState =
+            state.productsByCategory[category]
+
+          const { items, lastDoc } = await listProducts({
+            category,
+            searchPrefix:
+              debouncedSearch.trim().length >= 2
+                ? debouncedSearch.trim().toLowerCase()
+                : undefined,
+            pageSize: isFirstPage
+              ? INITIAL_PAGE_SIZE
+              : LOAD_MORE_PAGE_SIZE,
+            cursor: isFirstPage
+              ? null
+              : currentCategoryState.cursor,
+          })
+
+          return {
+            category,
+            items,
+            lastDoc,
+          }
+        }),
+      )
+
+      setState((currentState) => {
+        const updatedProductsByCategory = {
+          ...currentState.productsByCategory,
+        }
+
+        results.forEach(({ category, items, lastDoc }) => {
+          const currentCategoryState =
+            currentState.productsByCategory[category]
+
+          updatedProductsByCategory[category] = {
+            products: isFirstPage
+              ? items
+              : [...currentCategoryState.products, ...items],
+            cursor: lastDoc,
+            hasNextPage: items.length === (
+              isFirstPage
+                ? INITIAL_PAGE_SIZE
+                : LOAD_MORE_PAGE_SIZE
+            ),
+          }
         })
 
-        setState((currentState) => ({
+        return {
           ...currentState,
-          products: isFirstPage
-            ? items
-            : [...currentState.products, ...items],
-          cursor: lastDoc,
-          hasNextPage: items.length === PAGE_SIZE,
+          productsByCategory: updatedProductsByCategory,
           isLoading: false,
-          isLoadingMore: false,
-        }))
-      } catch {
-        setState((currentState) => ({
-          ...currentState,
-          isLoading: false,
-          isLoadingMore: false,
-          error: 'No se pudieron cargar los productos.',
-        }))
-      }
-    },
-    [
-      state.categoryId,
-      debouncedSearch,
-      state.cursor,
-      state.isLoading,
-      state.isLoadingMore,
-    ],
-  )
+          loadingMoreCategory: null,
+        }
+      })
+    } catch {
+      setState((currentState) => ({
+        ...currentState,
+        isLoading: false,
+        loadingMoreCategory: null,
+        error: 'No se pudieron cargar los productos.',
+      }))
+    }
+  },
+  [
+    state.categoryId,
+    state.isLoading,
+    state.loadingMoreCategory,
+    state.productsByCategory,
+    debouncedSearch,
+  ],
+)
 
   useEffect(() => {
     loadProducts({ reset: true })
