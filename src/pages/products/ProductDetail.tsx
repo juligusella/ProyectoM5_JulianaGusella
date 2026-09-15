@@ -1,35 +1,95 @@
-import { useState } from 'react'
-import { Minus, Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Minus, Plus } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import Button from '../../components/ui/Button'
+import LoadingState from '../../components/states/LoadingState'
+import ErrorState from '../../components/states/ErrorState'
+import { getProductById } from '../../services/firebase/productService'
 import type { Product } from '../../types/product'
 
-interface ProductDetailProps {
-  product: Product
-}
-
-const ProductDetail = ({ product }: ProductDetailProps) => {
+const ProductDetail = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { id } = useParams<{ id: string }>()
   const { addItem } = useCart()
+
+  const category = location.state?.category
+
+  const [product, setProduct] = useState<Product | null>(null)
   const [quantity, setQuantity] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (!id) {
+        setError('Producto no encontrado.')
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        const result = await getProductById(id)
+
+        if (!result) {
+          setError('Producto no encontrado.')
+          return
+        }
+
+        setProduct(result)
+      } catch {
+        setError('No pudimos cargar el producto.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadProduct()
+  }, [id])
 
   const increaseQuantity = () => {
-    if (quantity < product.stock) {
+    if (product && quantity < product.stock) {
       setQuantity((prev) => prev + 1)
     }
   }
 
   const decreaseQuantity = () => {
-    setQuantity((prev) => Math.max(1, prev - 1))
+    setQuantity((prev) => Math.max(prev - 1, 1))
   }
 
   const handleAddToCart = () => {
+    if (!product) return
+
     for (let i = 0; i < quantity; i += 1) {
       addItem(product)
     }
   }
 
+  if (isLoading) {
+    return <LoadingState />
+  }
+
+  if (error || !product) {
+    return <ErrorState message={error ?? 'Producto no encontrado.'} />
+  }
+
   return (
     <main className="px-4 py-6">
+      <Button
+        variant="ghost"
+        onClick={() =>
+          navigate(category ? `/catalog/${category}` : '/catalog')
+        }
+        className="mb-4"
+      >
+        <ArrowLeft size={16} />
+        Volver
+      </Button>
+
       <div className="overflow-hidden">
         <img
           src={product.imageUrl}
@@ -48,6 +108,10 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             style: 'currency',
             currency: 'ARS',
           }).format(product.price)}
+        </p>
+
+        <p className="mt-4 text-sm leading-relaxed text-[var(--muted)]">
+          {product.description}
         </p>
 
         <p
@@ -73,7 +137,9 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             <Minus size={18} />
           </Button>
 
-          <span className="min-w-6 text-center">{quantity}</span>
+          <span className="min-w-6 text-center">
+            {quantity}
+          </span>
 
           <Button
             variant="ghost"

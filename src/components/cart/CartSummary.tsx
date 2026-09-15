@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import Button from '../ui/Button'
 
 interface CartSummaryProps {
@@ -11,6 +12,8 @@ const CartSummary = ({
   totalItems,
   clearCart,
 }: CartSummaryProps) => {
+  const navigate = useNavigate()
+
   return (
     <section className="mt-8 border-t border-[var(--border)] pt-6">
       <div className="flex justify-between text-sm text-[var(--muted)]">
@@ -31,9 +34,19 @@ const CartSummary = ({
         </span>
       </div>
 
-      <div className="mt-6 flex justify-end">
-        <Button variant="ghost" onClick={clearCart}>
+      <div className="mt-6 flex flex-col items-end gap-2">
+        <Button
+          variant="ghost"
+          onClick={clearCart}
+        >
           Vaciar carrito
+        </Button>
+
+        <Button
+          variant="primary"
+          onClick={() => navigate('/catalog')}
+        >
+          Seguir comprando
         </Button>
       </div>
     </section>

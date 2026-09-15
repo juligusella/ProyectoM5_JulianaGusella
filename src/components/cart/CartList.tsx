@@ -1,6 +1,8 @@
 import { useCart } from '../../hooks/useCart'
+import Button from '../ui/Button'
 import CartItem from './CartItem'
 import CartSummary from './CartSummary'
+import { useNavigate } from 'react-router-dom'
 
 export function CartList() {
   const {
@@ -9,6 +11,7 @@ export function CartList() {
     totalItems,
     clearCart,
   } = useCart()
+  const navigate = useNavigate()
 
   if (items.length === 0) {
     return (
@@ -20,6 +23,14 @@ export function CartList() {
         <p className="mt-6 text-sm text-[var(--muted)]">
           Tu carrito está vacío.
         </p>
+
+        <Button
+          variant="primary"
+          className="mt-6"
+          onClick={() => navigate('/catalog')}
+        >
+          Seguir comprando
+        </Button>
       </section>
     )
   }
