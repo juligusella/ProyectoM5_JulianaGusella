@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react'
+import { BrowserRouter } from 'react-router-dom'
+
 import ProductsProvider from './products/ProductsProvider'
+import { CartProvider } from './cart/CartProvider'
+import { FavoritesProvider } from './favorites/FavoritesProvider'
 
 interface AppProvidersProps {
   children: ReactNode
@@ -7,9 +11,15 @@ interface AppProvidersProps {
 
 const AppProviders = ({ children }: AppProvidersProps) => {
   return (
-    <ProductsProvider>
-      {children}
-    </ProductsProvider>
+    <BrowserRouter>
+      <ProductsProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            {children}
+          </FavoritesProvider>
+        </CartProvider>
+      </ProductsProvider>
+    </BrowserRouter>
   )
 }
 

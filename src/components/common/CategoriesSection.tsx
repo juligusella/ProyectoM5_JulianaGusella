@@ -9,21 +9,25 @@ const categories = [
     image: categoryPlantas,
     title: 'Plantas',
     description: 'Vida en cada rincón',
+    to: '/catalog/plantas',
   },
   {
     image: categoryMacetas,
     title: 'Macetas & Decoración',
     description: 'Decorá con naturaleza',
+    to: '/catalog/macetas',
   },
   {
     image: categoryCultivo,
     title: 'Cultivo',
     description: 'Todo lo que necesitás para crecer',
+    to: '/catalog/cultivo',
   },
   {
     image: categoryTerrarios,
     title: 'Terrarios',
     description: 'Pequeños mundos verdes',
+    to: '/catalog/terrarios',
   },
 ]
 
@@ -46,6 +50,7 @@ const CategoriesSection = () => {
             key={category.title}
             image={category.image}
             title={category.title}
+            to={category.to}
           />
         ))}
       </div>

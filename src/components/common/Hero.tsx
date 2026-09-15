@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import heroImage from '../../assets/savia-hero.png'
 import Button from '../ui/Button'
 
@@ -26,12 +27,14 @@ const Hero = () => {
             espacios vivos.
           </p>
 
-          <Button
-            variant="primary"
-            className="mt-5"
-          >
-            Explorar el catálogo
-          </Button>
+          <Link to="/catalog">
+            <Button
+              variant="primary"
+              className="mt-5"
+            >
+              Explorar el catálogo
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

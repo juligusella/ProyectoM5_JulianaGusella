@@ -1,3 +1,6 @@
+import { Heart, ShoppingBag } from 'lucide-react'
+import { useCart } from '../../hooks/useCart'
+import { useFavorites } from '../../hooks/useFavorites'
 import type { Product } from '../../types/product'
 
 interface ProductCardProps {
@@ -5,6 +8,21 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const { addItem } = useCart()
+  const { items, addFavorite, removeFavorite } = useFavorites()
+
+  const isFavorite = items.some(
+    (item) => item.id === product.id,
+  )
+
+  const handleFavorite = () => {
+    if (isFavorite) {
+      removeFavorite(product.id)
+    } else {
+      addFavorite(product)
+    }
+  }
+
   return (
     <article>
       <img
@@ -13,12 +31,45 @@ const ProductCard = ({ product }: ProductCardProps) => {
         alt={product.name}
       />
 
-      <div className="flex flex-col p-4">
-        <h2 className="text-lg font-semibold uppercase text-[var(--foreground)]">
+      <div className="relative px-2 py-2">
+        <h2 className="pr-7 text-xs font-semibold uppercase leading-tight text-[var(--foreground)]">
           {product.name}
         </h2>
 
-        <p className="text-base font-bold text-[var(--foreground)]">
+        <div className="absolute right-0 top-2 flex flex-col items-center gap-0">
+          <button
+            type="button"
+            className="flex h-6 w-6 items-center justify-center"
+            aria-label={`Agregar ${product.name} al carrito`}
+            disabled={product.stock === 0}
+            onClick={() => addItem(product)}
+          >
+            <ShoppingBag
+              size={16}
+              strokeWidth={1.5}
+            />
+          </button>
+
+          <button
+            type="button"
+            className="flex h-6 w-6 items-center justify-center"
+            aria-label={
+              isFavorite
+                ? `Quitar ${product.name} de favoritos`
+                : `Agregar ${product.name} a favoritos`
+            }
+            aria-pressed={isFavorite}
+            onClick={handleFavorite}
+          >
+            <Heart
+              size={16}
+              strokeWidth={1.5}
+              fill={isFavorite ? 'currentColor' : 'none'}
+            />
+          </button>
+        </div>
+
+        <p className="mt-1 text-xs font-bold text-[var(--foreground)]">
           {new Intl.NumberFormat('es-AR', {
             style: 'currency',
             currency: 'ARS',
@@ -28,8 +79,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <p
           className={
             product.stock > 0
-              ? 'mt-2 text-sm font-medium text-[var(--success)]'
-              : 'mt-2 text-sm font-medium text-[var(--danger)]'
+              ? 'mt-1 text-[10px] font-medium text-[var(--success)]'
+              : 'mt-1 text-[10px] font-medium text-[var(--danger)]'
           }
         >
           {product.stock > 0 ? 'En stock' : 'Sin stock'}

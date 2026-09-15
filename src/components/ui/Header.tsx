@@ -1,63 +1,108 @@
 import Button from './Button'
-
 import {
   Menu,
   Search,
   User,
+  Heart,
   ShoppingCart,
 } from 'lucide-react'
+import { useCart } from '../../hooks/useCart'
+import { useFavorites } from '../../hooks/useFavorites'
+import { useNavigate } from 'react-router-dom'
 
 const Header = () => {
+  const navigate = useNavigate()
+
+  const { totalItems } = useCart()
+  const { items } = useFavorites()
+
+  const totalFavorites = items.length
+
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]">
-      <div className="mx-auto grid h-20 max-w-7xl grid-cols-3 items-center px-4">
+      <div className="relative mx-auto h-20 max-w-7xl px-4">
 
         {/* Left actions */}
-        <div className="flex items-center gap-0">
+        <div className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
           <Button
             variant="ghost"
             size="icon"
             aria-label="Abrir menú"
+            className="!h-7 !w-7 !p-0"
           >
-            <Menu size={24} />
+            <Menu size={24} strokeWidth={1.7} />
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
             aria-label="Buscar productos"
+            className="!h-7 !w-7 !p-0"
+            onClick={() => navigate('/catalog')}
           >
-            <Search size={24} />      
+            <Search size={24} strokeWidth={1.7} />
           </Button>
         </div>
 
         {/* Logo */}
-        <div className="text-center">
-          <span className="block font-brand text-5xl font-normal tracking-tight text-[var(--foreground)]">
-            SAVIA
-          </span>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            aria-label="Ir al inicio"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+          >
+            <span className="block font-brand text-5xl font-normal leading-none tracking-tight text-[var(--foreground)]">
+              SAVIA
+            </span>
 
-          <span className="block text-xs uppercase tracking-widest text-[var(--muted)]">
-            Espacios vivos
-          </span>
+            <span className="block text-[9px] uppercase tracking-widest text-[var(--muted)]">
+              Espacios vivos
+            </span>
+          </button>
         </div>
 
         {/* Right actions */}
-        <div className="flex items-center justify-end gap-0">
+        <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
           <Button
             variant="ghost"
             size="icon"
             aria-label="Mi cuenta"
+            className="!h-7 !w-7 !p-0"
           >
-            <User size={24} />
+            <User size={24} strokeWidth={1.7} />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Favoritos"
+            className="relative !h-7 !w-7 !p-0"
+            onClick={() => navigate('/favorites')}
+          >
+            <Heart size={24} strokeWidth={1.7} />
+
+            {totalFavorites > 0 && (
+              <span className="absolute right-0 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--primary)] px-0.5 text-[9px] font-bold leading-none text-[var(--primary-foreground)]">
+                {totalFavorites}
+              </span>
+            )}
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
             aria-label="Carrito"
+            className="relative !h-7 !w-7 !p-0"
+            onClick={() => navigate('/cart')}
           >
-            <ShoppingCart size={24} />
+            <ShoppingCart size={24} strokeWidth={1.7} />
+
+            {totalItems > 0 && (
+              <span className="absolute right-0 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--primary)] px-0.5 text-[9px] font-bold leading-none text-[var(--primary-foreground)]">
+                {totalItems}
+              </span>
+            )}
           </Button>
         </div>
 

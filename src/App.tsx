@@ -1,12 +1,12 @@
 import Header from './components/ui/Header'
-import Catalog from './pages/Catalog'
+import AppRouter from './routes/AppRouter'
 
-function App() {
+const App = () => {
   return (
-    <div>
+    <>
       <Header />
-      <Catalog />
-    </div>
+      <AppRouter />
+    </>
   )
 }
 
