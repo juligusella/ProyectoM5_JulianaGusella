@@ -40,7 +40,7 @@ const Button = ({
 
   return (
     <button
-      className={`rounded-[var(--radius-md)] font-medium transition-colors ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-[--radius-md] font-medium transition-colors ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       disabled={disabled || loading}
       {...props}
     >

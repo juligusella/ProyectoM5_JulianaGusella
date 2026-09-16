@@ -41,9 +41,20 @@ const CartSummary = ({
         >
           Vaciar carrito
         </Button>
+      </div>
 
+      <div className="mt-6 space-y-2">
         <Button
           variant="primary"
+          className="w-full"
+          onClick={() => navigate('/checkout')}
+        >
+          Finalizar compra
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="w-full"
           onClick={() => navigate('/catalog')}
         >
           Seguir comprando

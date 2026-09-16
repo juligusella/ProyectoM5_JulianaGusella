@@ -5,16 +5,22 @@ import {
   User,
   Heart,
   ShoppingCart,
+  LogOut,
 } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useAuth } from '../../hooks/useAuth'
 
 const Header = () => {
   const navigate = useNavigate()
 
   const { totalItems } = useCart()
   const { items } = useFavorites()
+  const { user, signout } = useAuth()
+
+  const [isAccountOpen, setIsAccountOpen] = useState(false)
 
   const totalFavorites = items.length
 
@@ -64,14 +70,53 @@ const Header = () => {
 
         {/* Right actions */}
         <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Mi cuenta"
-            className="!h-7 !w-7 !p-0"
-          >
-            <User size={24} strokeWidth={1.7} />
-          </Button>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Mi cuenta"
+              className="relative !h-7 !w-7 !p-0"
+              onClick={() => {
+                if (!user) {
+                  navigate('/login')
+                  return
+                }
+
+                setIsAccountOpen((current) => !current)
+              }}
+            >
+              <User size={24} strokeWidth={1.7} />
+            </Button>
+
+            {user && isAccountOpen && (
+              <div className="absolute right-0 top-10 z-50 w-64 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 shadow-lg">
+                <div>
+                  <p className="text-sm font-medium text-[var(--foreground)]">
+                    {user.displayName}
+                  </p>
+
+                  <p className="mt-1 text-xs text-[var(--muted)]">
+                    {user.email}
+                  </p>
+                </div>
+
+                <div className="my-3 border-t border-[var(--border)]" />
+
+                <Button
+                  variant="ghost"
+                  size="md"
+                  className="w-full text-sm gap-3"
+                  onClick={async () => {
+                    await signout()
+                    setIsAccountOpen(false)
+                  }}
+                >
+                  <LogOut size={15} strokeWidth={1.7} />
+                  <span>Cerrar sesión</span>
+                </Button>
+              </div>
+            )}
+          </div>
 
           <Button
             variant="ghost"

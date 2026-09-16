@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import ProductList from '../components/common/ProductList'
-import { useProducts } from '../contexts/products/useProducts'
+import { useProducts } from '../hooks/useProducts'
 import type { CategoryId } from '../types/product'
 
 const validCategories: CategoryId[] = [
