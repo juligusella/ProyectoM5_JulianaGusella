@@ -1,5 +1,5 @@
 import Header from './components/ui/Header'
-import AppRouter from './routes/AppRouter'
+import AppRouter from './routes/AppRoutes'
 
 const App = () => {
   return (

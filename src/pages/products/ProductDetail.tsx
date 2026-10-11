@@ -5,7 +5,7 @@ import { useCart } from '../../hooks/useCart'
 import Button from '../../components/ui/Button'
 import LoadingState from '../../components/states/LoadingState'
 import ErrorState from '../../components/states/ErrorState'
-import { getProductById } from '../../services/firebase/productService'
+import { getProductById } from '../../services/products/productService'
 import type { Product } from '../../types/product'
 
 const ProductDetail = () => {

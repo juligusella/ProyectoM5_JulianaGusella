@@ -16,7 +16,7 @@ import {
   type DocumentSnapshot,
   type QueryConstraint,
 } from 'firebase/firestore'
-import { db } from './config'
+import { db } from '../firebase/config'
 import type { CategoryId, Product } from '../../types/product'
 
 const mapProduct = (
@@ -52,13 +52,14 @@ export type ListProductsParams = {
 export type ListProductsResult = {
   items: Product[]
   lastDoc: DocumentSnapshot | null
+  hasNextPage: boolean
 }
 
 export const listProducts = async (
   params: ListProductsParams = {},
 ): Promise<ListProductsResult> => {
   const { category, searchPrefix, pageSize = 8, cursor } = params
-  
+
   const constraints: QueryConstraint[] = []
 
   if (category) {
@@ -74,10 +75,10 @@ export const listProducts = async (
   }
 
   if (cursor) {
-  constraints.push(startAfter(cursor))
+    constraints.push(startAfter(cursor))
   }
 
-  constraints.push(limit(pageSize))
+  constraints.push(limit(pageSize + 1))
 
   const productsQuery = query(
     productsCollection,
@@ -86,16 +87,21 @@ export const listProducts = async (
 
   const snapshot = await getDocs(productsQuery)
 
-  const items = snapshot.docs.map(mapProduct)
+  const hasNextPage = snapshot.docs.length > pageSize
+
+  const docs = snapshot.docs.slice(0, pageSize)
+
+  const items = docs.map(mapProduct)
 
   const lastDoc =
-    snapshot.docs.length > 0
-      ? snapshot.docs[snapshot.docs.length - 1]
+    docs.length > 0
+      ? docs[docs.length - 1]
       : null
 
   return {
     items,
     lastDoc,
+    hasNextPage,
   }
 }
 

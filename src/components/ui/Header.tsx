@@ -10,7 +10,7 @@ import {
 import { useCart } from '../../hooks/useCart'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 
 const Header = () => {
@@ -24,11 +24,31 @@ const Header = () => {
 
   const totalFavorites = items.length
 
+  const accountMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isAccountOpen) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        accountMenuRef.current &&
+        !accountMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsAccountOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isAccountOpen])
+
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]">
       <div className="relative mx-auto h-20 max-w-7xl px-4">
 
-        {/* Left actions */}
         <div className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
           <Button
             variant="ghost"
@@ -50,7 +70,6 @@ const Header = () => {
           </Button>
         </div>
 
-        {/* Logo */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
           <button
             type="button"
@@ -68,9 +87,8 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Right actions */}
         <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
-          <div className="relative">
+          <div ref={accountMenuRef} className="relative">
             <Button
               variant="ghost"
               size="icon"
@@ -100,8 +118,21 @@ const Header = () => {
                   </p>
                 </div>
 
-                <div className="my-3 border-t border-[var(--border)]" />
+                {user.role === 'admin' && (
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    className="w-full justify-start text-sm"
+                    onClick={() => {
+                      setIsAccountOpen(false)
+                      navigate('/admin/products')
+                    }}
+                  >
+                    Panel de administración
+                  </Button>
+                )}
 
+                <div className="my-3 border-t border-[var(--border)]" />
                 <Button
                   variant="ghost"
                   size="md"
