@@ -80,22 +80,14 @@ export const cartReducer = (
         ),
       }
 
+
     case 'DECREMENT_QUANTITY': {
       const item = state.items.find(
         (item) => item.productId === action.payload,
       )
 
-      if (!item) {
+      if (!item || item.quantity <= 1) {
         return state
-      }
-
-      if (item.quantity === 1) {
-        return {
-          ...state,
-          items: state.items.filter(
-            (item) => item.productId !== action.payload,
-          ),
-        }
       }
 
       return {
@@ -107,6 +99,7 @@ export const cartReducer = (
         ),
       }
     }
+
 
     case 'CLEAR_CART':
       return {

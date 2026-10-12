@@ -1,5 +1,7 @@
-import { useMemo, useReducer, type ReactNode } from 'react'
+
+import { useEffect, useMemo, useReducer, type ReactNode } from 'react'
 import type { Product } from '../../types/product'
+import type { CartState } from '../../types/cart'
 import { cartReducer, initialState } from '../../reducers/cartReducer'
 import { CartContext } from './CartContext'
 
@@ -7,11 +9,47 @@ interface CartProviderProps {
   children: ReactNode
 }
 
+const CART_STORAGE_KEY = 'savia-cart'
+
+function getInitialState(): CartState {
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY)
+
+    if (!savedCart) {
+      return initialState
+    }
+
+    const parsedCart: unknown = JSON.parse(savedCart)
+
+    if (
+      typeof parsedCart === 'object' &&
+      parsedCart !== null &&
+      'items' in parsedCart &&
+      Array.isArray(parsedCart.items)
+    ) {
+      return { items: parsedCart.items }
+    }
+
+    return initialState
+  } catch {
+    return initialState
+  }
+}
+
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(
     cartReducer,
     initialState,
+    getInitialState,
   )
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state))
+    } catch (error) {
+      console.error('No se pudo guardar el carrito:', error)
+    }
+  }, [state])
 
   // Estados derivados
   const total = state.items.reduce(
@@ -79,4 +117,5 @@ export function CartProvider({ children }: CartProviderProps) {
     </CartContext.Provider>
   )
 }
+
 
