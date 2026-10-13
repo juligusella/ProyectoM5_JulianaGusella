@@ -1,3 +1,4 @@
+
 import type {
   FavoritesAction,
   FavoritesState,
@@ -34,6 +35,9 @@ export function favoritesReducer(
           (item) => item.id !== action.payload,
         ),
       }
+
+    case 'LOAD_FAVORITES':
+      return action.payload
 
     case 'CLEAR_FAVORITES':
       return {

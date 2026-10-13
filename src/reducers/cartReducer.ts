@@ -1,3 +1,4 @@
+
 import type { CartState } from '../types/cart'
 import type { Product } from '../types/product'
 
@@ -24,6 +25,10 @@ export type CartAction =
   }
   | {
     type: 'CLEAR_CART'
+  }
+  | {
+    type: 'LOAD_CART'
+    payload: CartState
   }
 
 export const cartReducer = (
@@ -80,7 +85,6 @@ export const cartReducer = (
         ),
       }
 
-
     case 'DECREMENT_QUANTITY': {
       const item = state.items.find(
         (item) => item.productId === action.payload,
@@ -100,6 +104,8 @@ export const cartReducer = (
       }
     }
 
+    case 'LOAD_CART':
+      return action.payload
 
     case 'CLEAR_CART':
       return {

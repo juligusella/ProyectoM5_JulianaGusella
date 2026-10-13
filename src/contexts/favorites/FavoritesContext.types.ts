@@ -1,3 +1,4 @@
+
 import type { Product } from '../../types/product'
 
 export type FavoritesItem = Product
@@ -8,16 +9,20 @@ export type FavoritesState = {
 
 export type FavoritesAction =
   | {
-      type: 'ADD_FAVORITE'
-      payload: Product
-    }
+    type: 'ADD_FAVORITE'
+    payload: Product
+  }
   | {
-      type: 'REMOVE_FAVORITE'
-      payload: string
-    }
+    type: 'REMOVE_FAVORITE'
+    payload: string
+  }
   | {
-      type: 'CLEAR_FAVORITES'
-    }
+    type: 'CLEAR_FAVORITES'
+  }
+  | {
+    type: 'LOAD_FAVORITES'
+    payload: FavoritesState
+  }
 
 export interface FavoritesContextType {
   items: FavoritesItem[]
