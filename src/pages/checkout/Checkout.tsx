@@ -1,11 +1,77 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+
 import Button from '../../components/ui/Button'
 import { useCart } from '../../hooks/useCart'
+import { useAuth } from '../../hooks/useAuth'
+import { useOrders } from '../../hooks/useOrders'
+import { useProducts } from '../../hooks/useProducts'
+
+const currencyFormatter = new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+})
 
 const Checkout = () => {
     const navigate = useNavigate()
-    const { items, total, totalItems } = useCart()
+
+    const { items, total, totalItems, clearCart } = useCart()
+    const { user, loading } = useAuth()
+    const { createOrder, isSubmitting, clearError } = useOrders()
+    const { loadProducts } = useProducts()
+
+    const [checkoutError, setCheckoutError] = useState<string | null>(null)
+
+
+    async function handleCheckout() {
+        if (loading || isSubmitting) {
+            return
+        }
+
+        if (!user) {
+            navigate('/login')
+            return
+        }
+
+        if (items.length === 0) {
+            return
+        }
+
+        clearError()
+        setCheckoutError(null)
+
+        try {
+            const orderId = await createOrder({
+                userId: user.uid,
+                items,
+            })
+
+            if (!orderId) {
+                return
+            }
+
+            clearCart()
+
+            try {
+                await loadProducts()
+            } catch (refreshError) {
+                console.error(
+                    'No se pudo actualizar el catálogo:',
+                    refreshError,
+                )
+            }
+
+            navigate(`/checkout/success/${orderId}`)
+        } catch (checkoutException) {
+            setCheckoutError(
+                checkoutException instanceof Error
+                    ? checkoutException.message
+                    : 'No pudimos confirmar la compra. Tu carrito sigue guardado; intentá nuevamente.',
+            )
+        }
+    }
+
 
     if (items.length === 0) {
         return (
@@ -35,6 +101,7 @@ const Checkout = () => {
                 variant="ghost"
                 onClick={() => navigate('/cart')}
                 className="mb-6"
+                disabled={isSubmitting}
             >
                 <ArrowLeft size={16} />
                 Volver al carrito
@@ -66,10 +133,9 @@ const Checkout = () => {
                             </div>
 
                             <p className="text-sm font-semibold text-[var(--foreground)]">
-                                {new Intl.NumberFormat('es-AR', {
-                                    style: 'currency',
-                                    currency: 'ARS',
-                                }).format(item.price * item.quantity)}
+                                {currencyFormatter.format(
+                                    item.price * item.quantity,
+                                )}
                             </p>
                         </div>
                     ))}
@@ -81,10 +147,7 @@ const Checkout = () => {
                     </span>
 
                     <span className="font-serif text-xl text-[var(--foreground)]">
-                        {new Intl.NumberFormat('es-AR', {
-                            style: 'currency',
-                            currency: 'ARS',
-                        }).format(total)}
+                        {currencyFormatter.format(total)}
                     </span>
                 </div>
             </section>
@@ -95,14 +158,30 @@ const Checkout = () => {
                 </h2>
 
                 <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-                    La compra es simulada. En el próximo paso confirmaremos el pedido.
+                    Confirmá tu pedido para registrar la compra y actualizar
+                    el stock disponible.
                 </p>
+
+                {checkoutError && (
+                    <p
+                        role="alert"
+                        className="mt-4 text-sm text-red-700"
+                    >
+                        {checkoutError}
+                    </p>
+                )}
 
                 <Button
                     variant="primary"
                     className="mt-6 w-full"
+                    onClick={handleCheckout}
+                    disabled={loading || isSubmitting || items.length === 0}
                 >
-                    Confirmar compra
+                    {loading
+                        ? 'Verificando usuario...'
+                        : isSubmitting
+                            ? 'Procesando compra...'
+                            : 'Confirmar compra'}
                 </Button>
             </section>
         </main>

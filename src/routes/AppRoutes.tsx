@@ -8,6 +8,11 @@ import ProductDetail from '../pages/products/ProductDetail'
 import Checkout from '../pages/checkout/Checkout'
 import Register from '../pages/auth/Register'
 import Login from '../pages/auth/Login'
+import CheckoutSuccess from '../pages/checkout/CheckoutSuccess'
+import Orders from '../pages/orders/Orders'
+import OrderDetail from '../pages/orders/OrderDetail'
+
+import { ProtectedRoute } from './ProtectedRoute'
 
 import { AdminRoute } from './AdminRoute'
 import { AdminLayout } from '../components/layout/AdminLayout'
@@ -28,15 +33,6 @@ const AppRouter = () => {
                 element={<Catalog />}
             />
 
-            <Route path="/cart" element={<Cart />} />
-
-            <Route path="/checkout" element={<Checkout />} />
-
-            <Route
-                path="/favorites"
-                element={<Favorites />}
-            />
-
             <Route
                 path="/product/:id"
                 element={<ProductDetail />}
@@ -51,6 +47,22 @@ const AppRouter = () => {
                 path="/register"
                 element={<Register />}
             />
+
+            {/* Rutas protegidas */}
+            <Route element={<ProtectedRoute />}>
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route
+                    path="/checkout/success/:orderId"
+                    element={<CheckoutSuccess />}
+                />
+                <Route path="/orders" element={<Orders />} />
+                <Route
+                    path="/orders/:orderId"
+                    element={<OrderDetail />}
+                />
+            </Route>
 
             {/* Panel de administración */}
             <Route element={<AdminRoute />}>

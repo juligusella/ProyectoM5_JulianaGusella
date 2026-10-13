@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { CartProvider } from './cart/CartProvider'
 import { FavoritesProvider } from './favorites/FavoritesProvider'
 import { AuthProvider } from './auth/AuthProvider'
+import { OrdersProvider } from './orders/OrdersProvider'
 
 interface AppProvidersProps {
   children: ReactNode
@@ -17,7 +18,9 @@ const AppProviders = ({ children }: AppProvidersProps) => {
         <ProductsProvider>
           <FavoritesProvider>
             <CartProvider>
-              {children}
+              <OrdersProvider>
+                {children}
+              </OrdersProvider>
             </CartProvider>
           </FavoritesProvider>
         </ProductsProvider>

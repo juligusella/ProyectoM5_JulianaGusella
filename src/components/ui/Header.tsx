@@ -132,6 +132,20 @@ const Header = () => {
                   </Button>
                 )}
 
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    className="w-full justify-start text-sm"
+                    onClick={() => {
+                      setIsAccountOpen(false)
+                      navigate('/orders')
+                    }}
+                  >
+                    Mis pedidos
+                  </Button>
+                )}
+
                 <div className="my-3 border-t border-[var(--border)]" />
                 <Button
                   variant="ghost"
