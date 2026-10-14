@@ -1,3 +1,4 @@
+
 import Button from './Button'
 import {
   Menu,
@@ -12,6 +13,7 @@ import { useFavorites } from '../../hooks/useFavorites'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../hooks/useAuth'
+import SideMenu from '../layout/SideMenu'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -21,6 +23,7 @@ const Header = () => {
   const { user, signout } = useAuth()
 
   const [isAccountOpen, setIsAccountOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const totalFavorites = items.length
 
@@ -46,93 +49,95 @@ const Header = () => {
   }, [isAccountOpen])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]">
-      <div className="relative mx-auto h-20 max-w-7xl px-4">
-
-        <div className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Abrir menú"
-            className="!h-7 !w-7 !p-0"
-          >
-            <Menu size={24} strokeWidth={1.7} />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Buscar productos"
-            className="!h-7 !w-7 !p-0"
-            onClick={() => navigate('/catalog')}
-          >
-            <Search size={24} strokeWidth={1.7} />
-          </Button>
-        </div>
-
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            aria-label="Ir al inicio"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
-          >
-            <span className="block font-brand text-5xl font-normal leading-none tracking-tight text-[var(--foreground)]">
-              SAVIA
-            </span>
-
-            <span className="block text-[9px] uppercase tracking-widest text-[var(--muted)]">
-              Espacios vivos
-            </span>
-          </button>
-        </div>
-
-        <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
-          <div ref={accountMenuRef} className="relative">
+    <>
+      <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]">
+        <div className="relative mx-auto h-20 max-w-7xl px-4">
+          <div className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Mi cuenta"
-              className="relative !h-7 !w-7 !p-0"
-              onClick={() => {
-                if (!user) {
-                  navigate('/login')
-                  return
-                }
-
-                setIsAccountOpen((current) => !current)
-              }}
+              aria-label="Abrir menú"
+              aria-expanded={isMenuOpen}
+              className="!h-7 !w-7 !p-0"
+              onClick={() => setIsMenuOpen(true)}
             >
-              <User size={24} strokeWidth={1.7} />
+              <Menu size={24} strokeWidth={1.7} />
             </Button>
 
-            {user && isAccountOpen && (
-              <div className="absolute right-0 top-10 z-50 w-64 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 shadow-lg">
-                <div>
-                  <p className="text-sm font-medium text-[var(--foreground)]">
-                    {user.displayName}
-                  </p>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Buscar productos"
+              className="!h-7 !w-7 !p-0"
+              onClick={() => navigate('/catalog')}
+            >
+              <Search size={24} strokeWidth={1.7} />
+            </Button>
+          </div>
 
-                  <p className="mt-1 text-xs text-[var(--muted)]">
-                    {user.email}
-                  </p>
-                </div>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              aria-label="Ir al inicio"
+              className="text-center"
+            >
+              <span className="block font-brand text-5xl font-normal leading-none tracking-tight text-[var(--foreground)]">
+                SAVIA
+              </span>
 
-                {user.role === 'admin' && (
-                  <Button
-                    variant="ghost"
-                    size="md"
-                    className="w-full justify-start text-sm"
-                    onClick={() => {
-                      setIsAccountOpen(false)
-                      navigate('/admin/products')
-                    }}
-                  >
-                    Panel de administración
-                  </Button>
-                )}
+              <span className="block text-[9px] uppercase tracking-widest text-[var(--muted)]">
+                Espacios vivos
+              </span>
+            </button>
+          </div>
 
-                {user && (
+          <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-0">
+            <div ref={accountMenuRef} className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Mi cuenta"
+                aria-expanded={isAccountOpen}
+                className="relative !h-7 !w-7 !p-0"
+                onClick={() => {
+                  if (!user) {
+                    navigate('/login')
+                    return
+                  }
+
+                  setIsAccountOpen((current) => !current)
+                }}
+              >
+                <User size={24} strokeWidth={1.7} />
+              </Button>
+
+              {user && isAccountOpen && (
+                <div className="absolute right-0 top-10 z-50 w-64 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 shadow-lg">
+                  <div>
+                    <p className="text-sm font-medium text-[var(--foreground)]">
+                      {user.displayName}
+                    </p>
+
+                    <p className="mt-1 text-xs text-[var(--muted)]">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {user.role === 'admin' && (
+                    <Button
+                      variant="ghost"
+                      size="md"
+                      className="w-full justify-start text-sm"
+                      onClick={() => {
+                        setIsAccountOpen(false)
+                        navigate('/admin/products')
+                      }}
+                    >
+                      Panel de administración
+                    </Button>
+                  )}
+
                   <Button
                     variant="ghost"
                     size="md"
@@ -144,60 +149,65 @@ const Header = () => {
                   >
                     Mis pedidos
                   </Button>
-                )}
 
-                <div className="my-3 border-t border-[var(--border)]" />
-                <Button
-                  variant="ghost"
-                  size="md"
-                  className="w-full text-sm gap-3"
-                  onClick={async () => {
-                    await signout()
-                    setIsAccountOpen(false)
-                  }}
-                >
-                  <LogOut size={15} strokeWidth={1.7} />
-                  <span>Cerrar sesión</span>
-                </Button>
-              </div>
-            )}
+                  <div className="my-3 border-t border-[var(--border)]" />
+
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    className="w-full gap-3 text-sm"
+                    onClick={async () => {
+                      await signout()
+                      setIsAccountOpen(false)
+                    }}
+                  >
+                    <LogOut size={15} strokeWidth={1.7} />
+                    <span>Cerrar sesión</span>
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Favoritos"
+              className="relative !h-7 !w-7 !p-0"
+              onClick={() => navigate('/favorites')}
+            >
+              <Heart size={24} strokeWidth={1.7} />
+
+              {totalFavorites > 0 && (
+                <span className="absolute right-0 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--primary)] px-0.5 text-[9px] font-bold leading-none text-[var(--primary-foreground)]">
+                  {totalFavorites}
+                </span>
+              )}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Carrito"
+              className="relative !h-7 !w-7 !p-0"
+              onClick={() => navigate('/cart')}
+            >
+              <ShoppingCart size={24} strokeWidth={1.7} />
+
+              {totalItems > 0 && (
+                <span className="absolute right-0 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--primary)] px-0.5 text-[9px] font-bold leading-none text-[var(--primary-foreground)]">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
           </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Favoritos"
-            className="relative !h-7 !w-7 !p-0"
-            onClick={() => navigate('/favorites')}
-          >
-            <Heart size={24} strokeWidth={1.7} />
-
-            {totalFavorites > 0 && (
-              <span className="absolute right-0 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--primary)] px-0.5 text-[9px] font-bold leading-none text-[var(--primary-foreground)]">
-                {totalFavorites}
-              </span>
-            )}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Carrito"
-            className="relative !h-7 !w-7 !p-0"
-            onClick={() => navigate('/cart')}
-          >
-            <ShoppingCart size={24} strokeWidth={1.7} />
-
-            {totalItems > 0 && (
-              <span className="absolute right-0 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--primary)] px-0.5 text-[9px] font-bold leading-none text-[var(--primary-foreground)]">
-                {totalItems}
-              </span>
-            )}
-          </Button>
         </div>
+      </header>
 
-      </div>
-    </header>
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
+    </>
   )
 }
 

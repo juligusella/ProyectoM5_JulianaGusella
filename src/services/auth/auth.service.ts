@@ -16,7 +16,6 @@ import type { User } from '../../types/user'
 
 const googleProvider = new GoogleAuthProvider()
 
-// SIGNUP EMAIL/PASSWORD
 export const signupService = async (
     email: string,
     password: string,
@@ -37,7 +36,6 @@ export const signupService = async (
     })
 }
 
-// LOGIN EMAIL/PASSWORD
 export const signinService = async (
     email: string,
     password: string,
@@ -45,7 +43,6 @@ export const signinService = async (
     await signInWithEmailAndPassword(auth, email, password)
 }
 
-// LOGIN GOOGLE
 export const signinWithGoogleService = async (): Promise<void> => {
     const credentials = await signInWithPopup(auth, googleProvider)
     const firebaseUser = credentials.user
@@ -53,7 +50,6 @@ export const signinWithGoogleService = async (): Promise<void> => {
     const userRef = doc(db, 'users', firebaseUser.uid)
     const snapshot = await getDoc(userRef)
 
-    // Si es el primer login con Google, creamos su perfil.
     if (!snapshot.exists()) {
         await setDoc(userRef, {
             email: firebaseUser.email ?? '',
@@ -63,12 +59,10 @@ export const signinWithGoogleService = async (): Promise<void> => {
     }
 }
 
-// LOGOUT
 export const signoutService = async (): Promise<void> => {
     await signOut(auth)
 }
 
-// OBTENER PERFIL
 export const getUserProfile = async (
     uid: string,
 ): Promise<User | null> => {

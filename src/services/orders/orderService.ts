@@ -22,10 +22,6 @@ import type { CartItem } from '../../types/cart'
 import type { Order, OrderStatus, OrderItem } from '../../types/order'
 import type { Product } from '../../types/product'
 
-// ======================================================
-// TIPOS INTERNOS DE FIRESTORE
-// ======================================================
-
 type OrderFirestore = Omit<Order, 'createdAt'> & {
     createdAt: Timestamp
     updatedAt?: Timestamp
@@ -35,11 +31,6 @@ export interface CreateOrderData {
     userId: string
     items: CartItem[]
 }
-
-// ======================================================
-// CONVERTER
-// Convierte Timestamp de Firestore a Date en la aplicación
-// ======================================================
 
 const orderConverter: FirestoreDataConverter<Order> = {
     toFirestore(order: WithFieldValue<Order>): DocumentData {
@@ -64,19 +55,9 @@ const orderConverter: FirestoreDataConverter<Order> = {
     },
 }
 
-// ======================================================
-// COLECCIÓN
-// ======================================================
-
 function ordersCol() {
     return collection(db, 'orders').withConverter(orderConverter)
 }
-
-// ======================================================
-// CREAR ORDEN DESDE EL CARRITO
-// Valida productos y stock, descuenta stock y crea la orden
-// dentro de una única transacción.
-// ======================================================
 
 export async function createOrderFromCart(
     orderData: CreateOrderData,
@@ -91,18 +72,14 @@ export async function createOrderFromCart(
         throw new Error('No podés crear una orden vacía.')
     }
 
-    // Evita cantidades inválidas.
     for (const item of items) {
         if (!Number.isInteger(item.quantity) || item.quantity < 1) {
             throw new Error(`Cantidad inválida para "${item.name}".`)
         }
     }
 
-    // Generamos el ID antes de ejecutar la transacción.
     const orderRef = doc(ordersCol())
 
-    // Agrupamos por ID para no descontar dos veces
-    // desde una misma lectura si un producto aparece repetido.
     const quantities = new Map<string, number>()
 
     for (const item of items) {
@@ -117,7 +94,7 @@ export async function createOrderFromCart(
     )
 
     await runTransaction(db, async (transaction) => {
-        // 1. LEER todos los productos antes de escribir.
+
         const snapshots = await Promise.all(
             productRefs.map((ref) => transaction.get(ref)),
         )
@@ -158,8 +135,6 @@ export async function createOrderFromCart(
             })
         })
 
-        // 2. VALIDAR stock y crear el snapshot con datos actuales
-        // de Firestore, no con los precios enviados por el carrito.
         for (const [productId, quantity] of quantities) {
             const product = products.get(productId)!
 
@@ -188,8 +163,6 @@ export async function createOrderFromCart(
             0,
         )
 
-        // 3. DESCONTAR stock.
-        // Todas las lecturas ya se realizaron.
         for (const [productId, quantity] of quantities) {
             const product = products.get(productId)!
 
@@ -199,7 +172,6 @@ export async function createOrderFromCart(
             )
         }
 
-        // 4. CREAR la orden con snapshot y fecha del servidor.
         transaction.set(orderRef.withConverter(null), {
             userId,
             items: orderItems,
@@ -212,10 +184,6 @@ export async function createOrderFromCart(
     return orderRef.id
 }
 
-// ======================================================
-// OBTENER ORDEN POR ID
-// ======================================================
-
 export async function getOrderById(
     orderId: string,
 ): Promise<Order | null> {
@@ -223,10 +191,6 @@ export async function getOrderById(
 
     return snapshot.exists() ? snapshot.data() : null
 }
-
-// ======================================================
-// OBTENER ÓRDENES DE UN USUARIO
-// ======================================================
 
 export async function getOrdersByUser(
     userId: string,
@@ -241,10 +205,6 @@ export async function getOrdersByUser(
 
     return snapshot.docs.map((document) => document.data())
 }
-
-// ======================================================
-// LISTAR ÓRDENES PARA ADMIN
-// ======================================================
 
 export async function listOrdersAdmin(params?: {
     status?: OrderStatus
@@ -261,10 +221,6 @@ export async function listOrdersAdmin(params?: {
 
     return snapshot.docs.map((document) => document.data())
 }
-
-// ======================================================
-// ACTUALIZAR ESTADO — ADMIN
-// ======================================================
 
 export async function updateOrderStatusAdmin(
     orderId: string,

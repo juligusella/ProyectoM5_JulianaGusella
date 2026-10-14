@@ -18,7 +18,7 @@ import type {
 } from './OrdersContext.types'
 
 export function OrdersProvider({ children }: OrdersProviderProps) {
-    // Estados
+
     const [userOrders, setUserOrders] = useState<Order[]>([])
     const [adminOrders, setAdminOrders] = useState<Order[]>([])
     const [currentOrder, setCurrentOrder] = useState<Order | null>(null)
@@ -27,7 +27,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // Ejecuta operaciones de lectura y administra sus estados.
     async function executeLoading(
         action: () => Promise<void>,
         errorMessage: string,
@@ -45,8 +44,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
             setIsLoading(false)
         }
     }
-
-    // Ejecuta operaciones de escritura y evita envíos simultáneos.
 
     async function executeSubmitting<T>(
         action: () => Promise<T>,
@@ -76,8 +73,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
         }
     }
 
-
-    // Cargar órdenes del usuario.
     async function loadUserOrders(userId: string): Promise<void> {
         await executeLoading(async () => {
             const orders = await getOrdersByUser(userId)
@@ -85,7 +80,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
         }, 'No pudimos cargar tus órdenes.')
     }
 
-    // Cargar órdenes para administración.
     async function loadAdminOrders(
         params?: LoadAdminOrdersParams,
     ): Promise<void> {
@@ -95,7 +89,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
         }, 'No pudimos cargar las órdenes.')
     }
 
-    // Cargar una orden por su ID.
     async function loadOrder(orderId: string): Promise<void> {
         await executeLoading(async () => {
             const order = await getOrderById(orderId)
@@ -109,8 +102,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
         }, 'No pudimos cargar la orden.')
     }
 
-
-    // Crear una orden a partir del carrito.
     async function createOrder(
         params: CreateOrderParams,
     ): Promise<string | undefined> {
@@ -137,8 +128,6 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
         }, 'No pudimos crear la orden.')
     }
 
-
-    // Actualizar el estado de una orden desde administración.
     async function updateOrderStatus(
         orderId: string,
         status: OrderStatus,
@@ -170,19 +159,16 @@ export function OrdersProvider({ children }: OrdersProviderProps) {
         }, 'No pudimos actualizar la orden.')
     }
 
-    // Limpiar la orden seleccionada.
     function clearCurrentOrder(): void {
         setCurrentOrder(null)
     }
 
-    // Limpiar las listas y la orden seleccionada.
     function clearOrders(): void {
         setUserOrders([])
         setAdminOrders([])
         setCurrentOrder(null)
     }
 
-    // Limpiar el mensaje de error.
     function clearError(): void {
         setError(null)
     }

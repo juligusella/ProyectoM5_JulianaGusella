@@ -48,7 +48,6 @@ export const AdminProductForm = () => {
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // Cargar el producto cuando entramos a editar.
     useEffect(() => {
         let cancelled = false
 
@@ -98,7 +97,6 @@ export const AdminProductForm = () => {
         }
     }, [productId])
 
-    // Crear y limpiar la vista previa de una imagen seleccionada.
     useEffect(() => {
         if (!selectedFile) {
             setFilePreview('')

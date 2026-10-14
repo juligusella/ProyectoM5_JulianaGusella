@@ -26,14 +26,13 @@ export const AuthProvider = ({
         const unsubscribe = onAuthStateChanged(
             auth,
             async (firebaseUser) => {
-                // No hay usuario autenticado
+
                 if (!firebaseUser) {
                     setUser(null)
                     setLoading(false)
                     return
                 }
 
-                // Hay usuario autenticado
                 try {
                     const profile = await getUserProfile(firebaseUser.uid)
                     setUser(profile)

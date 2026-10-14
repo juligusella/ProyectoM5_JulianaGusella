@@ -10,14 +10,11 @@ export interface CategoryProductsState {
 export type ProductsState = {
   productsByCategory: Record<CategoryId, CategoryProductsState>
 
-  // Estados de la consulta
   isLoading: boolean
   error: string | null
 
-  // Paginación
   loadingMoreCategory: CategoryId | null
 
-  // Filtros
   searchText: string
   categoryId: CategoryId | null
 }
