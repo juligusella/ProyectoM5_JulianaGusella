@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest'
-import { favoritesReducer, initialState } from './FavoritesReducer'
+import { favoritesReducer, initialState } from '../reducers/FavoritesReducer'
 import type { Product } from '../types/product'
 
 const product: Product = {

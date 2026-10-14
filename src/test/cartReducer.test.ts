@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest'
-import { cartReducer, initialState } from './cartReducer'
+import { cartReducer, initialState } from '../reducers/cartReducer'
 import type { Product } from '../types/product'
 
 const product: Product = {
